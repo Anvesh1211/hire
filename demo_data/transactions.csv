@@ -1,0 +1,16 @@
+transaction_id,date,amount,account_number,source,destination,transaction_type,location,beneficiary_risk
+TXN-001,2024-01-15,9500,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-002,2024-01-16,9800,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-003,2024-01-17,9200,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-004,2024-01-18,9700,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-005,2024-01-19,9400,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-006,2024-01-20,9900,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-007,2024-01-22,8900,ACC-1001,Unknown,ACC-1001,Cash Deposit,Thane,High
+TXN-008,2024-01-25,12000,ACC-1001,ACC-1001,ACC-5542,Wire Transfer,Dubai,High
+TXN-009,2024-01-26,15000,ACC-1001,ACC-1001,ACC-7823,Wire Transfer,Singapore,High
+TXN-010,2024-01-28,8500,ACC-1001,Unknown,ACC-1001,Cash Deposit,Pune,High
+TXN-011,2024-02-01,9600,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-012,2024-02-02,9300,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High
+TXN-013,2024-02-05,18000,ACC-1001,ACC-1001,ACC-9234,International Wire,Hong Kong,Critical
+TXN-014,2024-02-08,9100,ACC-1001,Unknown,ACC-1001,Cash Deposit,Navi Mumbai,High
+TXN-015,2024-02-10,9800,ACC-1001,Unknown,ACC-1001,Cash Deposit,Mumbai,High

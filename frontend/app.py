@@ -15,6 +15,40 @@ import time
 # Add backend to path
 sys.path.append(str(Path(__file__).parent.parent / "backend"))
 
+# Add current directory to path
+sys.path.append(str(Path(__file__).parent))
+
+# Import secrets manager first
+try:
+    from config.secrets import get_secret, get_secrets_manager
+except ImportError:
+    # Fallback for development
+    def get_secret(key: str, default=None):
+        return default
+    
+    class MockSecretsManager:
+        def get_config(self):
+            class SimpleConfig:
+                def get_streamlit_config(self):
+                    return {
+                        "page_title": "ProofSAR AI",
+                        "page_icon": "🛡️",
+                        "layout": "wide",
+                        "initial_sidebar_state": "expanded"
+                    }
+                def get_alert_recipients(self):
+                    return {"high_risk": ["compliance@barclays.com"]}
+                @property
+                def ai_model(self):
+                    class AIModelConfig:
+                        def __init__(self):
+                            self.use_gemini = False
+                    return AIModelConfig()
+            return SimpleConfig()
+    
+    def get_secrets_manager():
+        return MockSecretsManager()
+
 # Import enterprise components
 from components.dashboard import EnterpriseDashboard
 from components.risk_metrics import RiskMetricsComponent
@@ -25,7 +59,33 @@ from components.audit_view import AuditViewComponent
 # Import utilities
 from utils.session_manager import get_session_manager
 from utils.error_handler import get_error_handler, enterprise_error_handler, show_error_boundary
-from config.settings import get_config
+
+# Initialize config using secrets manager
+try:
+    secrets_manager = get_secrets_manager()
+    config = secrets_manager.get_config()
+except Exception:
+    # Ultimate fallback
+    class SimpleConfig:
+        def get_streamlit_config(self):
+            return {
+                "page_title": "ProofSAR AI",
+                "page_icon": "🛡️",
+                "layout": "wide",
+                "initial_sidebar_state": "expanded"
+            }
+        
+        def get_alert_recipients(self):
+            return {"high_risk": ["compliance@barclays.com"]}
+        
+        @property
+        def ai_model(self):
+            class AIModelConfig:
+                def __init__(self):
+                    self.use_gemini = False
+            return AIModelConfig()
+    
+    config = SimpleConfig()
 
 # Import backend services
 from detection.structuring import ComprehensiveDetectionEngine
@@ -45,7 +105,52 @@ class ProofSARApp:
     """Main ProofSAR AI application class"""
     
     def __init__(self):
-        self.config = get_config()
+        # Initialize config using secrets manager
+        try:
+            secrets_manager = get_secrets_manager()
+            self.config = secrets_manager.get_config()
+        except Exception:
+            # Ultimate fallback
+            class SimpleConfig:
+                def get_streamlit_config(self):
+                    return {
+                        "page_title": "ProofSAR AI",
+                        "page_icon": "🛡️",
+                        "layout": "wide",
+                        "initial_sidebar_state": "expanded"
+                    }
+                
+                def get_alert_recipients(self):
+                    return {"high_risk": ["compliance@barclays.com"]}
+                
+                @property
+                def ai_model(self):
+                    class AIModelConfig:
+                        def __init__(self):
+                            self.use_gemini = False
+                    return AIModelConfig()
+            
+            self.config = SimpleConfig()
+        
+        # Ensure config has required methods
+        if not hasattr(self.config, 'get_streamlit_config'):
+            def get_streamlit_config(self):
+                return {
+                    "page_title": "ProofSAR AI",
+                    "page_icon": "🛡️", 
+                    "layout": "wide",
+                    "initial_sidebar_state": "expanded"
+                }
+            # Bind method to config object
+            import types
+            self.config.get_streamlit_config = types.MethodType(get_streamlit_config, self.config)
+        
+        if not hasattr(self.config, 'get_alert_recipients'):
+            def get_alert_recipients(self):
+                return {"high_risk": ["compliance@barclays.com"]}
+            # Bind method to config object
+            self.config.get_alert_recipients = types.MethodType(get_alert_recipients, self.config)
+        
         self.session_manager = get_session_manager()
         self.error_handler = get_error_handler()
         
@@ -59,7 +164,15 @@ class ProofSARApp:
         # Initialize backend services
         self.detection_engine = ComprehensiveDetectionEngine()
         self.reasoning_engine = GuiltReasoningEngine()
-        self.ai_generator = AIGenerator(use_gemini=self.config.ai_model.use_gemini)
+        
+        # Get AI model configuration safely
+        ai_model_config = getattr(self.config, 'ai_model', None)
+        if ai_model_config:
+            use_gemini = getattr(ai_model_config, 'use_gemini', False)
+        else:
+            use_gemini = False
+            
+        self.ai_generator = AIGenerator(use_gemini=use_gemini)
         self.audit_logger = AuditLogger()
         self.alert_service = GmailAlertService()
         

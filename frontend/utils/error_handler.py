@@ -11,6 +11,14 @@ from functools import wraps
 from datetime import datetime
 import streamlit as st
 
+# Import the new secrets manager
+try:
+    from config.secrets import get_secret
+except ImportError:
+    # Fallback for development
+    def get_secret(key: str, default: Any = None) -> Any:
+        return default
+
 logger = logging.getLogger(__name__)
 
 class EnterpriseErrorHandler:
@@ -85,7 +93,7 @@ class EnterpriseErrorHandler:
         st.error(user_message)
         
         # Show debug info in development
-        if st.secrets.get("SHOW_DEBUG_INFO", False):
+        if get_secret("SHOW_DEBUG_INFO", False):
             with st.expander("🔍 Technical Details"):
                 st.code(f"Error Type: {error_type}\nMessage: {str(exc)}\n\nTraceback:\n{traceback.format_exc()}")
     
@@ -243,7 +251,7 @@ def show_error_boundary(func: Callable) -> Callable:
         except Exception as exc:
             st.error("❌ An unexpected error occurred. The issue has been logged and our team has been notified.")
             
-            if st.secrets.get("SHOW_DEBUG_INFO", False):
+            if get_secret("SHOW_DEBUG_INFO", False):
                 st.exception(exc)
             else:
                 error_handler.handle_exception(exc, func.__name__)

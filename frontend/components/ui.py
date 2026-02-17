@@ -3,7 +3,23 @@ Reusable UI components for ProofSAR AI
 Minimal, enterprise fintech style
 """
 import streamlit as st
-from config import Colors, RISK_CONFIG
+
+# Local configuration for UI components
+class Colors:
+    PRIMARY = "#667eea"
+    SECONDARY = "#764ba2"
+    SUCCESS = "#28a745"
+    WARNING = "#ffc107"
+    DANGER = "#dc3545"
+    INFO = "#17a2b8"
+    LIGHT = "#f8f9fa"
+    DARK = "#343a40"
+
+class RISK_CONFIG:
+    CRITICAL = 0.75
+    HIGH = 0.5
+    MEDIUM = 0.25
+    LOW = 0.0
 
 
 def init_theme_css():

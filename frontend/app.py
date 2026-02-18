@@ -18,6 +18,14 @@ sys.path.append(str(Path(__file__).parent.parent / "backend"))
 # Add current directory to path
 sys.path.append(str(Path(__file__).parent))
 
+# Import SystemController for centralized operations
+try:
+    from system_controller import SystemController
+    SYSTEM_CONTROLLER_AVAILABLE = True
+except ImportError:
+    SYSTEM_CONTROLLER_AVAILABLE = False
+    print("⚠️ SystemController not available - using fallback")
+
 # Import secrets manager first
 try:
     from config.secrets import get_secret, get_secrets_manager
@@ -176,7 +184,27 @@ class ProofSARApp:
         self.audit_logger = AuditLogger()
         self.alert_service = GmailAlertService()
         
+        # Initialize SystemController with session state management
+        self._init_system_controller()
+        
         logger.info("ProofSAR AI application initialized")
+    
+    def _init_system_controller(self):
+        """Initialize SystemController with session state management"""
+        if SYSTEM_CONTROLLER_AVAILABLE:
+            # Use session state to prevent multiple instances
+            if "system_controller" not in st.session_state:
+                st.session_state.system_controller = SystemController()
+                logger.info("🧠 SystemController initialized in session state")
+            else:
+                logger.info("🔄 Using existing SystemController from session state")
+        else:
+            st.session_state.system_controller = None
+            logger.warning("⚠️ SystemController not available")
+    
+    def get_system_controller(self):
+        """Get SystemController from session state"""
+        return st.session_state.get("system_controller")
     
     def configure_page(self) -> None:
         """Configure Streamlit page settings"""
@@ -426,12 +454,68 @@ class ProofSARApp:
             col_a, col_b = st.columns(2)
             with col_a:
                 if st.button("☁️ Gemini", use_container_width=True, key="gemini_btn"):
-                    self.ai_generator.use_gemini = True
-                    self.session_manager.add_notification("Switched to Gemini Pro 1.5", "success")
-                    self.session_manager.update_activity()
-                    st.rerun()
+                    try:
+                        # Health check for Gemini service
+                        import requests
+                        import time
+                        from streamlit.components.v1 import html as st_html
+                        
+                        # Show toast notification
+                        st.toast("🔄 Checking Gemini service...", icon="⏳")
+                        
+                        # Health check with timeout
+                        health_response = requests.get("http://localhost:3000/health", timeout=3)
+                        
+                        if health_response.status_code == 200:
+                            # Log model toggle in audit
+                            try:
+                                self.audit_logger.log_action(
+                                    action="AI_MODEL_SWITCH",
+                                    details="Switched from Local LLM to Gemini Pro 1.5",
+                                    metadata={"previous_model": "Llama 2 7B", "new_model": "Gemini Pro 1.5"}
+                                )
+                            except Exception as audit_error:
+                                # Continue even if audit fails
+                                pass
+                            
+                            # Update model state
+                            self.ai_generator.use_gemini = True
+                            self.session_manager.add_notification("Switched to Gemini Pro 1.5", "success")
+                            self.session_manager.update_activity()
+                            
+                            # Safe redirect using components.html
+                            redirect_js = """
+                            <script>
+                                window.open('http://localhost:3000', '_blank');
+                            </script>
+                            """
+                            st_html(redirect_js, height=0)
+                            
+                            st.success("✅ Gemini service is online - Opening new tab...")
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error("🚫 Gemini service returned error status")
+                            
+                    except requests.exceptions.RequestException:
+                        st.error("🚫 Gemini service is offline at http://localhost:3000")
+                        st.info("💡 Please ensure Gemini UI server is running on port 3000")
+                    except Exception as e:
+                        st.error(f"❌ Failed to connect to Gemini: {str(e)}")
+            
             with col_b:
                 if st.button("💻 Local", use_container_width=True, key="local_btn"):
+                    try:
+                        # Log model toggle in audit
+                        self.audit_logger.log_action(
+                            action="AI_MODEL_SWITCH", 
+                            details="Switched from Gemini Pro 1.5 to Local LLM",
+                            metadata={"previous_model": "Gemini Pro 1.5", "new_model": "Llama 2 7B"}
+                        )
+                    except Exception:
+                        # Continue even if audit fails
+                        pass
+                    
                     self.ai_generator.use_gemini = False
                     self.session_manager.add_notification("Switched to Local LLM", "info")
                     self.session_manager.update_activity()
@@ -795,6 +879,130 @@ class ProofSARApp:
         </div>
         """, unsafe_allow_html=True)
     
+    def render_system_controller_page(self) -> None:
+        """Render System Controller page with audit integrity verification"""
+        st.markdown('<div class="main-content">', unsafe_allow_html=True)
+        
+        st.markdown("## 🧠 System Controller")
+        st.markdown("---")
+        
+        # Get SystemController
+        controller = self.get_system_controller()
+        
+        if not controller:
+            st.error("⚠️ SystemController not available")
+            return
+        
+        # System Status
+        st.markdown("### 📊 System Status")
+        
+        try:
+            status = controller.get_system_status()
+            
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric(
+                    "System Status",
+                    "🟢 OPERATIONAL" if status["system_status"] == "operational" else "🔴 ERROR",
+                    delta=None
+                )
+            
+            with col2:
+                audit_status = status["components"]["audit_trail"]
+                st.metric(
+                    "Audit Trail",
+                    "✅ VALID" if audit_status["integrity_valid"] else "❌ COMPROMISED",
+                    delta=f"{audit_status['total_entries']} entries"
+                )
+            
+            with col3:
+                gmail_status = status["components"]["gmail_service"]
+                st.metric(
+                    "Gmail Service",
+                    "✅ HEALTHY" if gmail_status["status"] == "healthy" else "❌ ERROR",
+                    delta=None
+                )
+            
+            with col4:
+                alert_status = status["components"]["alert_manager"]
+                st.metric(
+                    "Alert Manager",
+                    "✅ HEALTHY" if alert_status["status"] == "healthy" else "❌ ERROR",
+                    delta=f"{alert_status['total_alerts']} alerts"
+                )
+            
+            # Detailed Audit Integrity
+            st.markdown("### 🔍 Audit Integrity Verification")
+            
+            audit_integrity = controller.audit_logger.audit.verify_chain_integrity()
+            
+            if audit_integrity["valid"]:
+                st.success("✅ Audit chain integrity is VALID")
+            else:
+                st.error("❌ Audit chain integrity COMPROMISED")
+                st.error(audit_integrity["message"])
+                
+                if audit_integrity.get("tampered_entries"):
+                    st.markdown("**🚨 Tampered Entries:**")
+                    for entry in audit_integrity["tampered_entries"]:
+                        st.error(f"Entry {entry['index']}: {entry['issue']}")
+                
+                if audit_integrity.get("broken_links"):
+                    st.markdown("**🔗 Broken Links:**")
+                    for link in audit_integrity["broken_links"]:
+                        st.error(f"Entry {link['index']}: {link['issue']}")
+            
+            # Recent Audit Entries
+            st.markdown("### 📝 Recent Audit Entries")
+            
+            recent_entries = controller.audit_logger.audit.chain[-10:]  # Last 10 entries
+            if recent_entries:
+                for entry in reversed(recent_entries):
+                    with st.expander(f"📋 [{entry['index']}] {entry['action']} - {entry['case_id']}"):
+                        st.markdown(f"**Timestamp:** {entry['timestamp']}")
+                        st.markdown(f"**User:** {entry['user']}")
+                        st.markdown(f"**Action:** {entry['action']}")
+                        st.markdown(f"**Case ID:** {entry['case_id']}")
+                        st.markdown(f"**Hash:** `{entry['hash'][:16]}...`")
+                        
+                        if entry.get('details'):
+                            st.markdown("**Details:**")
+                            st.json(entry['details'])
+            
+            # Test Transaction Processing
+            st.markdown("### 🧪 Test Transaction Processing")
+            
+            if st.button("🔄 Process Test Transaction", type="primary"):
+                with st.spinner("Processing test transaction..."):
+                    test_transaction = {
+                        'transaction_id': f'TEST-{datetime.now().strftime("%Y%m%d%H%M%S")}',
+                        'customer_id': 'CUST-TEST-001',
+                        'amount': 25000,
+                        'transaction_type': 'wire_transfer',
+                        'timestamp': datetime.utcnow().isoformat()
+                    }
+                    
+                    result = controller.process_transaction(test_transaction, user='streamlit_test')
+                    
+                    st.success("✅ Test transaction processed successfully!")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("**Processing Results:**")
+                        st.json(result)
+                    
+                    with col2:
+                        st.markdown("**Audit Entries Created:**")
+                        case_history = controller.audit_logger.audit.get_case_history(result['case_id'])
+                        for entry in case_history:
+                            st.markdown(f"- {entry['action']}: {entry['timestamp']}")
+            
+        except Exception as e:
+            st.error(f"❌ Error loading system status: {str(e)}")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
     def run(self) -> None:
         """Main application runner"""
         try:
@@ -830,6 +1038,8 @@ class ProofSARApp:
                 self.render_generator_page()
             elif current_page == "🔐 Audit Trail":
                 self.render_audit_page()
+            elif current_page == "🧠 System Controller":
+                self.render_system_controller_page()
             elif current_page == "📧 Alerts":
                 self.render_alerts_page()
             elif current_page == "📈 Analytics":

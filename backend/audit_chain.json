@@ -1,0 +1,34 @@
+{
+  "chain": [
+    {
+      "index": 1,
+      "timestamp": "2026-02-17T20:46:44.006863",
+      "action": "ALERT_SENT",
+      "user": "SYSTEM",
+      "case_id": "CASE-TEST-001",
+      "details": {
+        "recipients": [
+          "anveshchaurpagar193@gmail.com"
+        ],
+        "alert_type": "TEST_ALERT",
+        "sent_timestamp": "2026-02-17T20:46:44.006857",
+        "email_status": {
+          "success": true,
+          "message_id": "EMAIL-1771361203-8665",
+          "error_message": null,
+          "attempts": 1,
+          "delivery_time": "2026-02-17T20:46:43.764663",
+          "smtp_response": "OK"
+        }
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "5edfcbdedba121b8f111f2f7806667f851e698e40c8cf176a335c983b0e810b6"
+    }
+  ],
+  "previous_hash": "5edfcbdedba121b8f111f2f7806667f851e698e40c8cf176a335c983b0e810b6",
+  "last_updated": "2026-02-17T20:46:44.007061",
+  "chain_length": 1,
+  "version": "2.0"
+}

@@ -1,0 +1,56 @@
+{
+  "chain": [
+    {
+      "index": 1,
+      "timestamp": "2026-02-17T20:45:46.477470",
+      "action": "CASE_CREATED_TAMPERED",
+      "user": "test_user",
+      "case_id": "CASE-001",
+      "details": {
+        "transaction_count": 5,
+        "customer_id": "CUST-001",
+        "initial_risk": null
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "1a789d0ea813e83518392e1d0f9b155118a61b7adc75a1929fe8786e55893ca4"
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-02-17T20:45:46.478848",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "test_user",
+      "case_id": "CASE-001",
+      "details": {
+        "risk_score": 0.85,
+        "patterns_detected": 0,
+        "detection_types": []
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "1a789d0ea813e83518392e1d0f9b155118a61b7adc75a1929fe8786e55893ca4",
+      "hash": "d356e961ae5466f47ac34d58b45b038cd7bf48335cf3041b3d9969ce300db4a2"
+    },
+    {
+      "index": 3,
+      "timestamp": "2026-02-17T20:45:46.481697",
+      "action": "SAR_GENERATED",
+      "user": "test_user",
+      "case_id": "CASE-001",
+      "details": {
+        "ai_model": "gemini",
+        "content_length": 16,
+        "timestamp": "2026-02-17T20:45:46.481669"
+      },
+      "previous_state": null,
+      "new_state": "7d3a36b14dd43302d8c474f916477247399081958ab03e811183da740d02f1b1",
+      "previous_hash": "d356e961ae5466f47ac34d58b45b038cd7bf48335cf3041b3d9969ce300db4a2",
+      "hash": "7664193f1677607d434a7a07dbd1e16aeb923859819245077603a5d09f6fffd7"
+    }
+  ],
+  "previous_hash": "7664193f1677607d434a7a07dbd1e16aeb923859819245077603a5d09f6fffd7",
+  "last_updated": "2026-02-17T20:45:46.483279",
+  "chain_length": 3,
+  "version": "2.0"
+}

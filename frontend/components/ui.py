@@ -316,15 +316,15 @@ def risk_gauge(risk_score: float, risk_level: str = "MEDIUM"):
     """, unsafe_allow_html=True)
 
 
-def footer():
-    """Professional footer"""
-    st.markdown("---")
-    st.markdown(f"""
-    <div style="text-align: center; color: #636e72; padding-top: 2rem; padding-bottom: 1rem;">
-        <div style="font-weight: 600; margin-bottom: 0.5rem;">ProofSAR AI v1.0</div>
-        <div style="font-size: 0.9rem; margin-bottom: 1rem;">Glass-Box AML Compliance Platform</div>
-        <div style="font-size: 0.85rem; opacity: 0.7;">
-            Built with ❤️ for Enterprise AML Compliance | Powered by Advanced AI & Cryptographic Audit
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+# def footer():
+#     """Professional footer"""
+#     st.markdown("---")
+#     st.markdown(f"""
+#     <div style="text-align: center; color: #636e72; padding-top: 2rem; padding-bottom: 1rem;">
+#         <div style="font-weight: 600; margin-bottom: 0.5rem;">ProofSAR AI v1.0</div>
+#         <div style="font-size: 0.9rem; margin-bottom: 1rem;">Glass-Box AML Compliance Platform</div>
+#         <div style="font-size: 0.85rem; opacity: 0.7;">
+#             Built with ❤️ for Enterprise AML Compliance | Powered by Advanced AI & Cryptographic Audit
+#         </div>
+#     </div>
+#     """, unsafe_allow_html=True)

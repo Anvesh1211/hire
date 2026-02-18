@@ -17,6 +17,7 @@ from dataclasses import dataclass
 import json
 import traceback
 from pathlib import Path
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
@@ -34,16 +35,13 @@ class EmailConfig:
 
 @dataclass
 class EmailStatus:
-    """Email sending status"""
-    status: str  # "SENT", "FAILED", "RETRYING"
+    """Email delivery status tracking"""
+    success: bool
     message_id: Optional[str] = None
-    error: Optional[str] = None
+    error_message: Optional[str] = None
     attempts: int = 0
-    timestamp: datetime = None
-    
-    def __post_init__(self):
-        if self.timestamp is None:
-            self.timestamp = datetime.now()
+    delivery_time: Optional[datetime] = None
+    smtp_response: Optional[str] = None
 
 class GmailAlertServiceV2:
     """
@@ -58,297 +56,537 @@ class GmailAlertServiceV2:
     - HTML email formatting
     """
     
-    def __init__(self, config: Optional[EmailConfig] = None):
-        """Initialize email service with configuration"""
-        self.config = config or self._load_config_from_env()
-        self.sent_alerts = []  # Store for audit trail
-        self.failed_alerts = []  # Store failed attempts
+    def __init__(self, debug_mode: Optional[bool] = None):
+        """Initialize Gmail service with environment configuration"""
         
-        # Validate configuration
-        self._validate_config()
+        # Load environment variables
+        try:
+            load_dotenv()
+            logger.info("📦 Environment variables loaded successfully")
+        except Exception as e:
+            logger.error(f"❌ Failed to load environment variables: {e}")
+            raise
         
-        logger.info(f"GmailAlertServiceV2 initialized with server: {self.config.smtp_server}")
+        # Configuration from environment with validation
+        self.smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+        self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
+        self.email_username = os.getenv("EMAIL_USERNAME")
+        self.email_password = os.getenv("EMAIL_PASSWORD")
+        self.use_tls = os.getenv("EMAIL_USE_TLS", "true").lower() == "true"
+        
+        # Debug mode from env or parameter
+        env_debug = os.getenv("EMAIL_DEBUG", "false").lower() == "true"
+        self.debug_mode = debug_mode if debug_mode is not None else env_debug
+        
+        # Retry configuration from environment
+        self.max_retries = int(os.getenv("EMAIL_MAX_RETRIES", "3"))
+        self.base_delay = int(os.getenv("EMAIL_BASE_DELAY", "2"))
+        self.max_delay = int(os.getenv("EMAIL_MAX_DELAY", "30"))
+        self.connection_timeout = int(os.getenv("EMAIL_TIMEOUT", "30"))
+        
+        # Set debug logging level
+        if self.debug_mode:
+            logger.setLevel(logging.DEBUG)
+            logger.debug("🐛 Debug mode enabled")
+        
+        # Alert tracking
+        self.sent_alerts = []
+        self.failed_alerts = []
+        
+        # Validate environment setup
+        self._validate_environment()
+        
+        logger.info(f"🚀 GmailAlertServiceV2 initialized - Server: {self.smtp_server}:{self.smtp_port}, TLS: {self.use_tls}, Max Retries: {self.max_retries}")
     
-    def _load_config_from_env(self) -> EmailConfig:
-        """Load configuration from environment variables"""
-        return EmailConfig(
-            smtp_server=os.getenv("SMTP_SERVER", "smtp.gmail.com"),
-            smtp_port=int(os.getenv("SMTP_PORT", "587")),
-            username=os.getenv("EMAIL_USERNAME", ""),
-            password=os.getenv("EMAIL_PASSWORD", ""),
-            use_tls=os.getenv("EMAIL_USE_TLS", "true").lower() == "true",
-            timeout=int(os.getenv("EMAIL_TIMEOUT", "30")),
-            retry_attempts=int(os.getenv("EMAIL_RETRY_ATTEMPTS", "3")),
-            retry_delay=float(os.getenv("EMAIL_RETRY_DELAY", "1.0"))
-        )
+    def _validate_environment(self) -> None:
+        """Validate required environment variables"""
+        missing_vars = []
+        
+        if not self.email_username:
+            missing_vars.append("EMAIL_USERNAME")
+        if not self.email_password:
+            missing_vars.append("EMAIL_PASSWORD")
+        
+        if missing_vars:
+            error_msg = f"❌ Missing required environment variables: {', '.join(missing_vars)}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        
+        # Check for potential App Password issues
+        if "@" in self.email_username and len(self.email_password) < 16:
+            logger.warning("⚠️ Gmail password appears to be a regular password. Consider using an App Password for better security.")
+            logger.info("💡 To create an App Password: Google Account → Security → 2-Step Verification → App Passwords")
+        
+        # Validate SMTP configuration
+        if self.smtp_port not in [587, 465, 25]:
+            logger.warning(f"⚠️ Unusual SMTP port: {self.smtp_port}. Standard ports: 587 (STARTTLS), 465 (SSL/TLS), 25 (SMTP)")
+        
+        logger.info("✅ Environment validation completed")
     
-    def _validate_config(self) -> None:
-        """Validate email configuration"""
-        if not self.config.username:
-            raise ValueError("EMAIL_USERNAME environment variable is required")
-        
-        if not self.config.password:
-            raise ValueError("EMAIL_PASSWORD environment variable is required")
-        
-        if self.config.smtp_port < 1 or self.config.smtp_port > 65535:
-            raise ValueError("Invalid SMTP port")
-        
-        if self.config.timeout < 1:
-            raise ValueError("Email timeout must be at least 1 second")
-    
-    def send_high_risk_alert(self, case_id: str, risk_score: float, recipients: List[str]) -> Dict[str, Any]:
+    def health_check(self) -> Dict[str, any]:
         """
-        Send immediate alert for high-risk cases
+        Comprehensive health check of the email service
+        Returns detailed status of all components
+        """
+        health_status = {
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),
+            "checks": {},
+            "recommendations": []
+        }
         
-        Args:
-            case_id: Unique case identifier
-            risk_score: Risk score (0.0 to 1.0)
-            recipients: List of email addresses
+        try:
+            logger.info("🔍 Starting Gmail service health check...")
             
-        Returns:
-            Dictionary with status and details
+            # Check environment variables
+            env_check = {
+                "status": "pass" if self.email_username and self.email_password else "fail",
+                "username_configured": bool(self.email_username),
+                "password_configured": bool(self.email_password),
+                "smtp_server": self.smtp_server,
+                "smtp_port": self.smtp_port,
+                "tls_enabled": self.use_tls,
+                "debug_mode": self.debug_mode,
+                "max_retries": self.max_retries
+            }
+            health_status["checks"]["environment"] = env_check
+            
+            # Test SMTP connection and authentication
+            connection_check = {"status": "unknown", "message": "", "details": {}}
+            server = None
+            
+            try:
+                logger.debug(f"🔌 Testing SMTP connection to {self.smtp_server}:{self.smtp_port}")
+                
+                # Create SSL context for TLS
+                context = ssl.create_default_context()
+                server = smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=self.connection_timeout)
+                
+                if self.debug_mode:
+                    server.set_debuglevel(1)
+                
+                # Initial EHLO
+                server.ehlo()
+                connection_check["details"]["ehlo_before_tls"] = "success"
+                logger.debug("👋 EHLO before TLS successful")
+                
+                # Enforce STARTTLS
+                if self.use_tls:
+                    server.starttls(context=context)
+                    server.ehlo()  # EHLO after STARTTLS to get updated capabilities
+                    connection_check["details"]["starttls"] = "success"
+                    connection_check["details"]["ehlo_after_tls"] = "success"
+                    logger.debug("🔒 STARTTLS enforced successfully")
+                    health_status["checks"]["tls"] = {"status": "pass", "message": "STARTTLS successful"}
+                
+                # Test authentication
+                server.login(self.email_username, self.email_password)
+                connection_check["details"]["authentication"] = "success"
+                connection_check["status"] = "pass"
+                connection_check["message"] = "SMTP connection and authentication successful"
+                logger.debug("🔐 SMTP authentication successful")
+                
+                health_status["checks"]["authentication"] = {"status": "pass", "message": "SMTP login successful"}
+                health_status["checks"]["connection"] = {"status": "pass", "message": "SMTP connection successful"}
+                
+                server.quit()
+                logger.debug("👋 SMTP connection closed gracefully")
+                
+            except smtplib.SMTPAuthenticationError as e:
+                error_msg = str(e)
+                connection_check["status"] = "fail"
+                connection_check["message"] = "Authentication failed"
+                connection_check["details"]["authentication_error"] = error_msg
+                
+                # Detect specific Gmail issues
+                if "Application-specific password required" in error_msg:
+                    connection_check["recommendation"] = "Use Gmail App Password instead of regular password"
+                    health_status["recommendations"].append("Create a Gmail App Password for secure authentication")
+                elif "Username and Password not accepted" in error_msg:
+                    connection_check["recommendation"] = "Check username and password credentials"
+                    health_status["recommendations"].append("Verify EMAIL_USERNAME and EMAIL_PASSWORD are correct")
+                
+                health_status["checks"]["authentication"] = {
+                    "status": "fail", 
+                    "message": "Authentication failed - check credentials or use App Password",
+                    "error": error_msg,
+                    "recommendation": connection_check["recommendation"]
+                }
+                health_status["status"] = "unhealthy"
+                logger.error(f"❌ SMTP Authentication Error: {e}")
+                
+            except smtplib.SMTPConnectError as e:
+                connection_check["status"] = "fail"
+                connection_check["message"] = "Cannot connect to SMTP server"
+                connection_check["details"]["connection_error"] = str(e)
+                
+                health_status["checks"]["connection"] = {
+                    "status": "fail",
+                    "message": "Cannot connect to SMTP server",
+                    "error": str(e),
+                    "recommendation": "Check SMTP_SERVER and SMTP_PORT, ensure network connectivity"
+                }
+                health_status["status"] = "unhealthy"
+                logger.error(f"❌ SMTP Connection Error: {e}")
+                
+            except Exception as e:
+                connection_check["status"] = "fail"
+                connection_check["message"] = "Unexpected connection error"
+                connection_check["details"]["unexpected_error"] = str(e)
+                
+                health_status["checks"]["connection"] = {
+                    "status": "fail",
+                    "message": "Unexpected connection error",
+                    "error": str(e)
+                }
+                health_status["status"] = "unhealthy"
+                logger.error(f"❌ Unexpected Connection Error: {e}")
+            
+            finally:
+                if server:
+                    try:
+                        server.quit()
+                    except Exception as e:
+                        logger.warning(f"⚠️ Error closing SMTP connection during health check: {e}")
+            
+            health_status["checks"]["connection_test"] = connection_check
+            
+            # Overall status assessment
+            if health_status["status"] == "healthy":
+                logger.info("✅ Gmail service health check passed")
+            else:
+                logger.error(f"❌ Gmail service health check failed: {health_status}")
+                
+        except Exception as e:
+            health_status["status"] = "error"
+            logger.error(f"❌ Health check critical error: {e}")
+        
+        return health_status
+    
+    def _send_smtp_email(self, subject: str, body: str, recipients: List[str], is_html: bool = False) -> EmailStatus:
+        """
+        Send email via SMTP with enterprise-grade retry mechanism and TLS security
+        """
+        status = EmailStatus(success=False, attempts=0)
+        
+        for attempt in range(self.max_retries):
+            status.attempts = attempt + 1
+            server = None
+            
+            try:
+                if self.debug_mode:
+                    logger.info(f"📧 Attempt {attempt + 1}/{self.max_retries} - Sending to {recipients}")
+                
+                # Create SSL context for enterprise security
+                context = ssl.create_default_context()
+                
+                # Create SMTP connection with timeout
+                server = smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=self.connection_timeout)
+                
+                if self.debug_mode:
+                    server.set_debuglevel(1)
+                
+                # Enterprise TLS sequence
+                server.ehlo()  # Initial greeting
+                if self.use_tls:
+                    server.starttls(context=context)  # Enforce STARTTLS
+                    server.ehlo()  # Re-greet after STARTTLS
+                    if self.debug_mode:
+                        logger.info("🔒 Enterprise STARTTLS enforced")
+                
+                # Authentication
+                server.login(self.email_username, self.email_password)
+                if self.debug_mode:
+                    logger.info("🔐 SMTP authentication successful")
+                
+                # Create message
+                msg = MIMEMultipart()
+                msg['From'] = self.email_username
+                msg['To'] = ', '.join(recipients)
+                msg['Subject'] = subject
+                
+                # Add body with proper MIME type
+                if is_html:
+                    msg.attach(MIMEText(body, 'html'))
+                else:
+                    msg.attach(MIMEText(body, 'plain'))
+                
+                # Send email
+                smtp_response = server.sendmail(self.email_username, recipients, msg.as_string())
+                
+                # Parse SMTP response
+                if smtp_response:
+                    # Some recipients failed
+                    failed_recipients = list(smtp_response.keys())
+                    status.success = False
+                    status.error_message = f"Failed to send to: {failed_recipients}"
+                    status.smtp_response = json.dumps(smtp_response)
+                    logger.warning(f"⚠️ Partial delivery failure: {failed_recipients}")
+                else:
+                    # All recipients successful
+                    status.success = True
+                    status.delivery_time = datetime.utcnow()
+                    status.message_id = f"EMAIL-{int(time.time())}-{hash(subject) % 10000:04d}"
+                    status.smtp_response = "OK"
+                    
+                    if self.debug_mode:
+                        logger.info(f"✅ Email sent successfully - Message ID: {status.message_id}")
+                
+                break  # Success, exit retry loop
+                
+            except smtplib.SMTPAuthenticationError as e:
+                status.error_message = f"Authentication failed: {str(e)}"
+                logger.error(f"❌ SMTP Authentication Error: {e}")
+                
+                # Detect Gmail App Password issue
+                if "Application-specific password required" in str(e):
+                    status.error_message += " - Use Gmail App Password instead of regular password"
+                    logger.error("💡 Recommendation: Use Gmail App Password for secure authentication")
+                
+                break  # Don't retry authentication errors
+                
+            except smtplib.SMTPRecipientsRefused as e:
+                status.error_message = f"All recipients refused: {str(e)}"
+                logger.error(f"❌ Recipients Refused: {e}")
+                break  # Don't retry recipient errors
+                
+            except smtplib.SMTPServerDisconnected as e:
+                status.error_message = f"Server disconnected: {str(e)}"
+                logger.warning(f"⚠️ Server Disconnected (attempt {attempt + 1}): {e}")
+                
+            except smtplib.SMTPException as e:
+                status.error_message = f"SMTP Error: {str(e)}"
+                logger.warning(f"⚠️ SMTP Error (attempt {attempt + 1}): {e}")
+                
+            except Exception as e:
+                status.error_message = f"Unexpected error: {str(e)}"
+                logger.error(f"❌ Unexpected Error (attempt {attempt + 1}): {e}")
+            
+            finally:
+                if server:
+                    try:
+                        server.quit()
+                        if self.debug_mode:
+                            logger.debug("👋 SMTP connection closed gracefully")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Error closing SMTP connection: {e}")
+            
+            # Retry delay with exponential backoff
+            if attempt < self.max_retries - 1:
+                delay = min(self.base_delay * (2 ** attempt), self.max_delay)
+                logger.info(f"⏳ Retrying in {delay} seconds...")
+                time.sleep(delay)
+        
+        return status
+    
+    def send_alert(self, alert_type: str, case_id: str, subject: str, body: str, 
+                   recipients: List[str], audit_logger=None) -> Dict:
+        """
+        Send alert email with comprehensive audit integration
         """
         try:
-            subject = f"🚨 ProofSAR Alert: HIGH RISK Case {case_id}"
+            logger.info(f"🚨 Sending {alert_type} alert for case {case_id} to {recipients}")
             
-            # Create HTML body
-            html_body = self._create_high_risk_html_body(case_id, risk_score)
-            text_body = self._create_high_risk_text_body(case_id, risk_score)
+            # Send email
+            email_status = self._send_smtp_email(subject, body, recipients)
             
-            # Send email with retry mechanism
-            status = self._send_email_with_retry(
-                subject=subject,
-                text_body=text_body,
-                html_body=html_body,
-                recipients=recipients,
-                priority="high"
-            )
-            
-            # Log the attempt
+            # Create comprehensive alert record
             alert_record = {
                 "alert_id": f"ALERT-{len(self.sent_alerts) + 1:04d}",
-                "type": "HIGH_RISK",
+                "type": alert_type,
                 "case_id": case_id,
-                "risk_score": risk_score,
                 "subject": subject,
+                "body_preview": body[:200] + "..." if len(body) > 200 else body,
                 "recipients": recipients,
-                "status": status.status,
-                "error": status.error,
-                "attempts": status.attempts,
-                "sent_at": status.timestamp.isoformat()
+                "sent_at": datetime.utcnow().isoformat(),
+                "status": "SENT" if email_status.success else "FAILED",
+                "email_status": {
+                    "success": email_status.success,
+                    "message_id": email_status.message_id,
+                    "attempts": email_status.attempts,
+                    "error_message": email_status.error_message,
+                    "delivery_time": email_status.delivery_time.isoformat() if email_status.delivery_time else None,
+                    "smtp_response": email_status.smtp_response
+                }
             }
             
-            if status.status == "SENT":
-                self.sent_alerts.append(alert_record)
-                logger.info(f"High risk alert sent successfully for case {case_id}")
+            # Store alert
+            self.sent_alerts.append(alert_record)
+            
+            # Log to audit if successful and audit logger provided
+            if email_status.success and audit_logger:
+                try:
+                    # Convert email_status to JSON-serializable format
+                    audit_email_status = email_status.__dict__.copy()
+                    if audit_email_status.get('delivery_time'):
+                        audit_email_status['delivery_time'] = audit_email_status['delivery_time'].isoformat()
+                    
+                    audit_logger.log_alert_sent(
+                        user="SYSTEM",
+                        case_id=case_id,
+                        recipients=recipients,
+                        alert_type=alert_type,
+                        email_status=audit_email_status
+                    )
+                    logger.info(f"🔗 Alert logged to audit trail: {alert_record['alert_id']}")
+                except Exception as e:
+                    logger.error(f"❌ Failed to log alert to audit: {e}")
+            
+            # Log result
+            if email_status.success:
+                logger.info(f"✅ Alert sent successfully: {alert_record['alert_id']} to {recipients}")
             else:
-                self.failed_alerts.append(alert_record)
-                logger.error(f"Failed to send high risk alert for case {case_id}: {status.error}")
+                logger.error(f"❌ Alert failed: {alert_record['alert_id']} - {email_status.error_message}")
             
             return alert_record
             
         except Exception as e:
-            logger.error(f"Exception in send_high_risk_alert: {str(e)}")
-            logger.debug(traceback.format_exc())
-            
-            error_record = {
-                "alert_id": f"ALERT-{len(self.failed_alerts) + 1:04d}",
-                "type": "HIGH_RISK",
-                "case_id": case_id,
-                "status": "FAILED",
-                "error": str(e),
-                "sent_at": datetime.now().isoformat()
-            }
-            self.failed_alerts.append(error_record)
-            return error_record
-    
-    def send_pending_review_alert(self, case_id: str, assigned_to: str, recipients: List[str]) -> Dict[str, Any]:
-        """
-        Send alert for pending review
-        
-        Args:
-            case_id: Unique case identifier
-            assigned_to: Person assigned to review
-            recipients: List of email addresses
-            
-        Returns:
-            Dictionary with status and details
-        """
-        try:
-            subject = f"📋 ProofSAR: Review Pending - Case {case_id}"
-            
-            html_body = self._create_pending_review_html_body(case_id, assigned_to)
-            text_body = self._create_pending_review_text_body(case_id, assigned_to)
-            
-            status = self._send_email_with_retry(
-                subject=subject,
-                text_body=text_body,
-                html_body=html_body,
-                recipients=recipients,
-                priority="medium"
-            )
-            
-            alert_record = {
+            error_msg = f"Critical error in send_alert: {str(e)}"
+            logger.error(error_msg)
+            return {
                 "alert_id": f"ALERT-{len(self.sent_alerts) + 1:04d}",
-                "type": "PENDING_REVIEW",
+                "type": alert_type,
                 "case_id": case_id,
-                "assigned_to": assigned_to,
-                "subject": subject,
-                "recipients": recipients,
-                "status": status.status,
-                "error": status.error,
-                "attempts": status.attempts,
-                "sent_at": status.timestamp.isoformat()
+                "status": "CRITICAL_ERROR",
+                "error": error_msg,
+                "sent_at": datetime.utcnow().isoformat()
             }
-            
-            if status.status == "SENT":
-                self.sent_alerts.append(alert_record)
-                logger.info(f"Pending review alert sent for case {case_id}")
-            else:
-                self.failed_alerts.append(alert_record)
-                logger.error(f"Failed to send pending review alert for case {case_id}: {status.error}")
-            
-            return alert_record
-            
-        except Exception as e:
-            logger.error(f"Exception in send_pending_review_alert: {str(e)}")
-            
-            error_record = {
-                "alert_id": f"ALERT-{len(self.failed_alerts) + 1:04d}",
-                "type": "PENDING_REVIEW",
-                "case_id": case_id,
-                "status": "FAILED",
-                "error": str(e),
-                "sent_at": datetime.now().isoformat()
-            }
-            self.failed_alerts.append(error_record)
-            return error_record
-    
-    def send_approval_notification(self, case_id: str, approver: str, recipients: List[str]) -> Dict[str, Any]:
-        """
-        Send notification when SAR is approved
+
+    def send_high_risk_alert(self, case_id: str, risk_score: float, recipients: List[str], audit_logger=None) -> Dict:
+        """Send immediate alert for high-risk cases"""
+        subject = f"🚨 ProofSAR Alert: HIGH RISK Case {case_id}"
         
-        Args:
-            case_id: Unique case identifier
-            approver: Person who approved
-            recipients: List of email addresses
-            
-        Returns:
-            Dictionary with status and details
+        body = f"""
+URGENT: High Risk SAR Case Detected
+{'=' * 50}
+
+Case ID: {case_id}
+Risk Score: {risk_score:.1%}
+Severity: CRITICAL
+Timestamp: {datetime.utcnow().isoformat()}
+
+Action Required:
+- Immediate review needed
+- Review deadline: 24 hours
+- Escalation to compliance head
+
+Access Case: https://proofsar.ai/case/{case_id}
+
+This is an automated alert from ProofSAR AI System.
+Do not reply to this email.
         """
-        try:
-            subject = f"✅ ProofSAR: SAR Approved - Case {case_id}"
-            
-            html_body = self._create_approval_html_body(case_id, approver)
-            text_body = self._create_approval_text_body(case_id, approver)
-            
-            status = self._send_email_with_retry(
-                subject=subject,
-                text_body=text_body,
-                html_body=html_body,
-                recipients=recipients,
-                priority="low"
-            )
-            
-            alert_record = {
-                "alert_id": f"ALERT-{len(self.sent_alerts) + 1:04d}",
-                "type": "APPROVED",
-                "case_id": case_id,
-                "approver": approver,
-                "subject": subject,
-                "recipients": recipients,
-                "status": status.status,
-                "error": status.error,
-                "attempts": status.attempts,
-                "sent_at": status.timestamp.isoformat()
-            }
-            
-            if status.status == "SENT":
-                self.sent_alerts.append(alert_record)
-                logger.info(f"Approval notification sent for case {case_id}")
-            else:
-                self.failed_alerts.append(alert_record)
-                logger.error(f"Failed to send approval notification for case {case_id}: {status.error}")
-            
-            return alert_record
-            
-        except Exception as e:
-            logger.error(f"Exception in send_approval_notification: {str(e)}")
-            
-            error_record = {
-                "alert_id": f"ALERT-{len(self.failed_alerts) + 1:04d}",
-                "type": "APPROVED",
-                "case_id": case_id,
-                "status": "FAILED",
-                "error": str(e),
-                "sent_at": datetime.now().isoformat()
-            }
-            self.failed_alerts.append(error_record)
-            return error_record
-    
-    def send_rejection_notification(self, case_id: str, rejector: str, reason: str, recipients: List[str]) -> Dict[str, Any]:
-        """
-        Send notification when SAR is rejected
         
-        Args:
-            case_id: Unique case identifier
-            rejector: Person who rejected
-            reason: Rejection reason
-            recipients: List of email addresses
-            
-        Returns:
-            Dictionary with status and details
+        return self.send_alert("HIGH_RISK", case_id, subject, body, recipients, audit_logger)
+    
+    def send_pending_review_alert(self, case_id: str, assigned_to: str, recipients: List[str], audit_logger=None) -> Dict:
+        """Send alert for pending review"""
+        subject = f"📋 ProofSAR: Review Pending - Case {case_id}"
+        
+        body = f"""
+SAR Review Pending
+{'=' * 50}
+
+Case ID: {case_id}
+Assigned To: {assigned_to}
+Status: AWAITING APPROVAL
+Timestamp: {datetime.utcnow().isoformat()}
+
+Action Required:
+- Review generated SAR narrative
+- Verify evidence linkage
+- Approve or request modifications
+
+Access Case: https://proofsar.ai/case/{case_id}
+
+This is an automated alert from ProofSAR AI System.
         """
-        try:
-            subject = f"❌ ProofSAR: SAR Rejected - Case {case_id}"
-            
-            html_body = self._create_rejection_html_body(case_id, rejector, reason)
-            text_body = self._create_rejection_text_body(case_id, rejector, reason)
-            
-            status = self._send_email_with_retry(
-                subject=subject,
-                text_body=text_body,
-                html_body=html_body,
-                recipients=recipients,
-                priority="medium"
-            )
-            
-            alert_record = {
-                "alert_id": f"ALERT-{len(self.sent_alerts) + 1:04d}",
-                "type": "REJECTED",
-                "case_id": case_id,
-                "rejector": rejector,
-                "reason": reason,
-                "subject": subject,
-                "recipients": recipients,
-                "status": status.status,
-                "error": status.error,
-                "attempts": status.attempts,
-                "sent_at": status.timestamp.isoformat()
+        
+        return self.send_alert("PENDING_REVIEW", case_id, subject, body, recipients, audit_logger)
+    
+    def send_approval_notification(self, case_id: str, approver: str, recipients: List[str], audit_logger=None) -> Dict:
+        """Send notification when SAR is approved"""
+        subject = f"✅ ProofSAR: SAR Approved - Case {case_id}"
+        
+        body = f"""
+SAR Approved and Filed
+{'=' * 50}
+
+Case ID: {case_id}
+Approved By: {approver}
+Status: FILED WITH FIU-IND
+Timestamp: {datetime.utcnow().isoformat()}
+
+Next Steps:
+- SAR transmitted to Financial Intelligence Unit
+- Case archived in compliance records
+- 5-year retention period activated
+
+Access Case: https://proofsar.ai/case/{case_id}
+
+This is an automated alert from ProofSAR AI System.
+        """
+        
+        return self.send_alert("APPROVED", case_id, subject, body, recipients, audit_logger)
+    
+    def send_rejection_notification(self, case_id: str, rejector: str, reason: str, recipients: List[str], audit_logger=None) -> Dict:
+        """Send notification when SAR is rejected"""
+        subject = f"❌ ProofSAR: SAR Rejected - Case {case_id}"
+        
+        body = f"""
+SAR Rejected - Revision Required
+{'=' * 50}
+
+Case ID: {case_id}
+Rejected By: {rejector}
+Reason: {reason}
+Timestamp: {datetime.utcnow().isoformat()}
+
+Action Required:
+- Review rejection reason
+- Revise SAR narrative
+- Re-submit for approval
+
+Access Case: https://proofsar.ai/case/{case_id}
+
+This is an automated alert from ProofSAR AI System.
+        """
+        
+        return self.send_alert("REJECTED", case_id, subject, body, recipients, audit_logger)
+    
+    def get_alert_history(self, case_id: str = None) -> List[Dict]:
+        """Retrieve alert history"""
+        if case_id:
+            return [alert for alert in self.sent_alerts if alert["case_id"] == case_id]
+        return self.sent_alerts
+    
+    def get_alert_stats(self) -> Dict:
+        """Get comprehensive statistics about sent alerts"""
+        total = len(self.sent_alerts)
+        if total == 0:
+            return {
+                "total_sent": 0, 
+                "successful": 0,
+                "failed": 0,
+                "success_rate": 0.0,
+                "by_type": {},
+                "last_sent": None
             }
-            
-            if status.status == "SENT":
-                self.sent_alerts.append(alert_record)
-                logger.info(f"Rejection notification sent for case {case_id}")
-            else:
-                self.failed_alerts.append(alert_record)
-                logger.error(f"Failed to send rejection notification for case {case_id}: {status.error}")
-            
-            return alert_record
-            
-        except Exception as e:
-            logger.error(f"Exception in send_rejection_notification: {str(e)}")
-            
-            error_record = {
-                "alert_id": f"ALERT-{len(self.failed_alerts) + 1:04d}",
-                "type": "REJECTED",
-                "case_id": case_id,
-                "status": "FAILED",
-                "error": str(e),
-                "sent_at": datetime.now().isoformat()
-            }
-            self.failed_alerts.append(error_record)
-            return error_record
+        
+        successful = len([a for a in self.sent_alerts if a["status"] == "SENT"])
+        failed = total - successful
+        
+        return {
+            "total_sent": total,
+            "successful": successful,
+            "failed": failed,
+            "success_rate": successful / total,
+            "by_type": {
+                alert_type: len([a for a in self.sent_alerts if a["type"] == alert_type])
+                for alert_type in set(a["type"] for a in self.sent_alerts)
+            },
+            "last_sent": self.sent_alerts[-1]["sent_at"] if self.sent_alerts else None,
+            "stats_generated": datetime.utcnow().isoformat()
+        }
     
     def _send_email_with_retry(self, subject: str, text_body: str, html_body: str, 
                               recipients: List[str], priority: str = "normal") -> EmailStatus:

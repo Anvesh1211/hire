@@ -34,9 +34,12 @@ class RiskMetricsComponent:
             color, emoji = self.risk_colors.get(risk_level, ("#6c757d", "⚪"))
             
             st.markdown(f"""
-            <div class="card" style="text-align: center; background: linear-gradient(135deg, {color}22 0%, {color}44 100%);">
-                <h3>Overall Risk Level</h3>
-                <h1 style="font-size: 4rem; margin: 1rem 0;">{emoji}</h1>
+            <div class="card" style="
+                text-align: center;
+                background: linear-gradient(135deg, {color}22 0%, {color}44 100%);
+                color: #111111;">
+                <h3 style="color:#111111;">Overall Risk Level</h3>
+                <h1 style="font-size: 4rem; margin: 1rem 0; color:#111111;">{emoji}</h1>
                 <h2 style="color: {color}; margin: 0;">{risk_level}</h2>
             </div>
             """, unsafe_allow_html=True)
@@ -45,9 +48,14 @@ class RiskMetricsComponent:
         with col2:
             risk_score = detection_results.get('risk_score', 0.5)
             st.markdown(f"""
-            <div class="card" style="text-align: center;">
-                <h3>Risk Score</h3>
-                <h1 style="font-size: 4rem; color: {color}; margin: 1rem 0;">{risk_score:.0%}</h1>
+            <div class="card" style="
+                text-align: center;
+                background: #ffffff;
+                color: #111111;">
+                <h3 style="color:#111111;">Risk Score</h3>
+                <h1 style="font-size: 4rem; color: {color}; margin: 1rem 0;">
+                    {risk_score:.0%}
+                </h1>
                 <div class="risk-meter">
                     <div class="risk-indicator" style="left: {risk_score*100}%;"></div>
                 </div>
@@ -58,10 +66,15 @@ class RiskMetricsComponent:
         with col3:
             pattern_count = len(detection_results.get('all_patterns', []))
             st.markdown(f"""
-            <div class="card" style="text-align: center;">
-                <h3>Patterns Detected</h3>
-                <h1 style="font-size: 4rem; color: #667eea; margin: 1rem 0;">{pattern_count}</h1>
-                <p>Suspicious indicators found</p>
+            <div class="card" style="
+                text-align: center;
+                background: #ffffff;
+                color: #111111;">
+                <h3 style="color:#111111;">Patterns Detected</h3>
+                <h1 style="font-size: 4rem; color: #667eea; margin: 1rem 0;">
+                    {pattern_count}
+                </h1>
+                <p style="color:#111111;">Suspicious indicators found</p>
             </div>
             """, unsafe_allow_html=True)
     
@@ -93,7 +106,7 @@ class RiskMetricsComponent:
             height=300,
             margin=dict(t=50, b=0, l=20, r=20),
             paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(family='Inter, sans-serif')
+            font=dict(color="#111111", family='Inter, sans-serif')
         )
         
         st.plotly_chart(fig, use_container_width=True)
@@ -108,7 +121,13 @@ class RiskMetricsComponent:
         
         for i, pattern in enumerate(patterns, 1):
             st.markdown(f"""
-            <div style="background: #f8f9fa; padding: 1rem; border-radius: 10px; margin: 0.5rem 0; border-left: 4px solid #dc3545;">
+            <div style="
+                background: #ffffff;
+                padding: 1rem;
+                border-radius: 10px;
+                margin: 0.5rem 0;
+                border-left: 4px solid #dc3545;
+                color:#111111;">
                 <strong style="color: #dc3545;">Pattern {i}:</strong> {pattern}
             </div>
             """, unsafe_allow_html=True)
@@ -124,7 +143,6 @@ class RiskMetricsComponent:
         for evidence in evidence_list:
             pattern_name = evidence.get('pattern', f"Evidence {evidence_list.index(evidence) + 1}")
             with st.expander(f"🔍 {pattern_name}", expanded=False):
-                # Create structured evidence display
                 evidence_data = []
                 for key, value in evidence.items():
                     if key != 'pattern':
@@ -147,7 +165,6 @@ class RiskMetricsComponent:
     def render_shap_importance(self, shap_values: Optional[Dict] = None) -> None:
         """Render SHAP feature importance chart"""
         if shap_values is None:
-            # Generate sample SHAP data for demonstration
             shap_values = {
                 'features': ['Transaction Amount', 'Frequency', 'Time Pattern', 'Account Age', 'Geographic Risk'],
                 'values': [0.35, 0.28, 0.18, 0.12, 0.07]
@@ -174,7 +191,7 @@ class RiskMetricsComponent:
             margin=dict(t=50, b=50, l=150, r=50),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(family='Inter, sans-serif')
+            font=dict(color="#111111", family='Inter, sans-serif')
         )
         
         st.plotly_chart(fig, use_container_width=True)
@@ -182,7 +199,6 @@ class RiskMetricsComponent:
     def render_risk_timeline(self, timeline_data: Optional[pd.DataFrame] = None) -> None:
         """Render risk assessment timeline"""
         if timeline_data is None:
-            # Generate sample timeline data
             dates = pd.date_range(start='2024-02-01', periods=30, freq='D')
             timeline_data = pd.DataFrame({
                 'Date': dates,
@@ -192,7 +208,6 @@ class RiskMetricsComponent:
         
         fig = go.Figure()
         
-        # Add risk score line
         fig.add_trace(go.Scatter(
             x=timeline_data['Date'],
             y=timeline_data['Risk Score'],
@@ -203,7 +218,6 @@ class RiskMetricsComponent:
             hovertemplate='Date: %{x}<br>Risk Score: %{y:.2%}<extra></extra>'
         ))
         
-        # Add threshold line
         fig.add_hline(y=0.75, line_dash="dash", line_color="red", annotation_text="High Risk Threshold")
         
         fig.update_layout(
@@ -214,13 +228,35 @@ class RiskMetricsComponent:
             margin=dict(t=50, b=50, l=50, r=50),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(family='Inter, sans-serif')
+            font=dict(color="#111111", family='Inter, sans-serif')
         )
         
         st.plotly_chart(fig, use_container_width=True)
-    
+
+    def render_shap_explanation(self, shap_values: Optional[Dict] = None) -> None:
+        """Render SHAP explanation placeholder"""
+        import streamlit as st
+        import pandas as pd
+
+        st.markdown("### 🧠 Model Explainability (SHAP Analysis)")
+
+        st.info("""
+        SHAP (SHapley Additive exPlanations) values show how each feature 
+        contributed to the final risk score.
+
+        🔹 Positive values increase risk  
+        🔹 Negative values decrease risk  
+        """)
+
+        if shap_values is None:
+            shap_values = {
+                "Feature": ["Amount", "Frequency", "Location Risk", "Structuring Pattern"],
+                "Impact Score": [0.32, 0.21, 0.15, 0.27]
+            }
+
+        st.bar_chart(pd.DataFrame(shap_values))
+
     def _get_risk_color(self, risk_score: float) -> str:
-        """Get color based on risk score"""
         if risk_score >= 0.75:
             return "#dc3545"
         elif risk_score >= 0.5:
@@ -231,7 +267,6 @@ class RiskMetricsComponent:
             return "#28a745"
     
     def get_risk_level(self, risk_score: float) -> str:
-        """Get risk level based on score"""
         if risk_score >= 0.75:
             return "CRITICAL"
         elif risk_score >= 0.5:

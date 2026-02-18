@@ -1,0 +1,584 @@
+{
+  "chain": [
+    {
+      "index": 1,
+      "timestamp": "2026-02-17T22:04:31.263668",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218033431",
+      "details": {
+        "transaction_count": 1000,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "7b2cca51c466aaeebcf78f4c35ee8750a5acbb8c5561ede9995ed7e240df336e"
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-02-17T22:04:31.270218",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218033431",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 5,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "7b2cca51c466aaeebcf78f4c35ee8750a5acbb8c5561ede9995ed7e240df336e",
+      "hash": "c5016b734b09efb11a06db2aa2aba59e6101eca3780dbe4c7c2ab20eaae8f45b"
+    },
+    {
+      "index": 3,
+      "timestamp": "2026-02-17T22:20:06.130477",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218035006",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "c5016b734b09efb11a06db2aa2aba59e6101eca3780dbe4c7c2ab20eaae8f45b",
+      "hash": "a6bcaed48d8fe937fae39b5eb01a73dc49fe6f221b9c115d1077ba4e8361e605"
+    },
+    {
+      "index": 4,
+      "timestamp": "2026-02-17T22:20:06.139507",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218035006",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "a6bcaed48d8fe937fae39b5eb01a73dc49fe6f221b9c115d1077ba4e8361e605",
+      "hash": "3120944012f5251a6e3da1576ff8305640805171be5fd19670e3879a0b3a39c4"
+    },
+    {
+      "index": 5,
+      "timestamp": "2026-02-17T22:26:35.639769",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218035635",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "3120944012f5251a6e3da1576ff8305640805171be5fd19670e3879a0b3a39c4",
+      "hash": "f5f32df4842da363f25eb6f669b052f102b679046282cb7bba81d6b052ac0806"
+    },
+    {
+      "index": 6,
+      "timestamp": "2026-02-17T22:26:35.646132",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218035635",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "f5f32df4842da363f25eb6f669b052f102b679046282cb7bba81d6b052ac0806",
+      "hash": "ad40f04f1dfa1f270eb8b8e98f82f93d685495ccd23e409d32e3b6183816e1fe"
+    },
+    {
+      "index": 7,
+      "timestamp": "2026-02-17T22:32:25.748107",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040225",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "ad40f04f1dfa1f270eb8b8e98f82f93d685495ccd23e409d32e3b6183816e1fe",
+      "hash": "623369ec9546592c46c39b5db34a8b7a315b30e8fb43bd89ca16d74644950cfb"
+    },
+    {
+      "index": 8,
+      "timestamp": "2026-02-17T22:32:25.755430",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040225",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "623369ec9546592c46c39b5db34a8b7a315b30e8fb43bd89ca16d74644950cfb",
+      "hash": "b2f2ab11f0b2c9e326cd11ea908c785c82ec6c0b2861a42286156eaf7a98d4c7"
+    },
+    {
+      "index": 9,
+      "timestamp": "2026-02-17T22:34:18.912370",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040418",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "b2f2ab11f0b2c9e326cd11ea908c785c82ec6c0b2861a42286156eaf7a98d4c7",
+      "hash": "c53b55aa10495998ad32dfc77bacdc47a344bdb93d9d3dbb50dfcfeb37520842"
+    },
+    {
+      "index": 10,
+      "timestamp": "2026-02-17T22:34:18.917636",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040418",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "c53b55aa10495998ad32dfc77bacdc47a344bdb93d9d3dbb50dfcfeb37520842",
+      "hash": "07eb93cb2c191fbca103a27e8b381d6915484d2714b0ffb6ccd67369f3408df7"
+    },
+    {
+      "index": 11,
+      "timestamp": "2026-02-17T22:36:05.530686",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040605",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "07eb93cb2c191fbca103a27e8b381d6915484d2714b0ffb6ccd67369f3408df7",
+      "hash": "a39fe2f3e08d6245f2b4f2b24d8e9aebe33dc3fe42135807448f57071ad265f1"
+    },
+    {
+      "index": 12,
+      "timestamp": "2026-02-17T22:36:05.537149",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040605",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "a39fe2f3e08d6245f2b4f2b24d8e9aebe33dc3fe42135807448f57071ad265f1",
+      "hash": "e6282af59dcf3f5e4afd68cd567ca4e4dd051dd7511a82a08a15ac7ea9f53b9a"
+    },
+    {
+      "index": 13,
+      "timestamp": "2026-02-17T22:36:43.629302",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040643",
+      "details": {
+        "transaction_count": 1000,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "e6282af59dcf3f5e4afd68cd567ca4e4dd051dd7511a82a08a15ac7ea9f53b9a",
+      "hash": "6f1368ad6475989e681f4ca645ce7c6e812e9dfbbe2b0504b8670978ccef37a2"
+    },
+    {
+      "index": 14,
+      "timestamp": "2026-02-17T22:36:43.634133",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218040643",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 5,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "6f1368ad6475989e681f4ca645ce7c6e812e9dfbbe2b0504b8670978ccef37a2",
+      "hash": "70b33e670ab1a18903ade4b447b68a1b3a0b4b7e927ed577298b7bc421e6b9fc"
+    },
+    {
+      "index": 15,
+      "timestamp": "2026-02-17T22:46:26.107955",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218041626",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "70b33e670ab1a18903ade4b447b68a1b3a0b4b7e927ed577298b7bc421e6b9fc",
+      "hash": "91d7d869bd6edc6d41d63e53e766a50fd380244e8fdf30ad7d1706225482acd6"
+    },
+    {
+      "index": 16,
+      "timestamp": "2026-02-17T22:46:26.114487",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218041626",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "91d7d869bd6edc6d41d63e53e766a50fd380244e8fdf30ad7d1706225482acd6",
+      "hash": "aa16e1bfc4df037119c7611c1ab632eb0e8d0c199f267b667976430d7f187635"
+    },
+    {
+      "index": 17,
+      "timestamp": "2026-02-17T22:52:33.257520",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218042233",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "aa16e1bfc4df037119c7611c1ab632eb0e8d0c199f267b667976430d7f187635",
+      "hash": "2d5e659a29461e0d03cae1c98eeaa2bbed19b25a141ed56cd1bf6600f7b22d45"
+    },
+    {
+      "index": 18,
+      "timestamp": "2026-02-17T22:52:33.265385",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218042233",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "2d5e659a29461e0d03cae1c98eeaa2bbed19b25a141ed56cd1bf6600f7b22d45",
+      "hash": "b56fdf906b8b1add04ba8355c5d65b8a233f90c2b142a3fde809921cafe18836"
+    },
+    {
+      "index": 19,
+      "timestamp": "2026-02-17T22:56:38.659398",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218042638",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "b56fdf906b8b1add04ba8355c5d65b8a233f90c2b142a3fde809921cafe18836",
+      "hash": "352d8a3556b785873127cacaf0de5f0d53a0de6fa56fe6a10ca07e5789c870d6"
+    },
+    {
+      "index": 20,
+      "timestamp": "2026-02-17T22:56:38.667527",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218042638",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "352d8a3556b785873127cacaf0de5f0d53a0de6fa56fe6a10ca07e5789c870d6",
+      "hash": "1bf7b0a7c37d8f17ee4f341f0e37824218d1a56c2da5f5bcd5eec483db97ed8f"
+    },
+    {
+      "index": 21,
+      "timestamp": "2026-02-18T03:03:24.294411",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218083324",
+      "details": {
+        "transaction_count": 1000,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "1bf7b0a7c37d8f17ee4f341f0e37824218d1a56c2da5f5bcd5eec483db97ed8f",
+      "hash": "358661b773553871a8efff477b7e46d3e9f8ef6fae2b7f0c63ed6d08529ff0bf"
+    },
+    {
+      "index": 22,
+      "timestamp": "2026-02-18T03:03:24.307427",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218083324",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 5,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "358661b773553871a8efff477b7e46d3e9f8ef6fae2b7f0c63ed6d08529ff0bf",
+      "hash": "2f898fc3b215cc0531ccc4f1b3d137dc7ecde2ed64da2746a7e099732408b932"
+    },
+    {
+      "index": 23,
+      "timestamp": "2026-02-18T03:09:37.457249",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218083937",
+      "details": {
+        "transaction_count": 1000,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "2f898fc3b215cc0531ccc4f1b3d137dc7ecde2ed64da2746a7e099732408b932",
+      "hash": "c76c7ccfeb2de7ee48887c462a6c4d7c9b9c90574c26e69b72e770a4306a24af"
+    },
+    {
+      "index": 24,
+      "timestamp": "2026-02-18T03:09:37.469274",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218083937",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 5,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "c76c7ccfeb2de7ee48887c462a6c4d7c9b9c90574c26e69b72e770a4306a24af",
+      "hash": "a9eedf511e6a681bb705f4424fa83211b7fb29e4f919b3bdff2fa3b47fb1d6ea"
+    },
+    {
+      "index": 25,
+      "timestamp": "2026-02-18T03:18:42.498152",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218084842",
+      "details": {
+        "transaction_count": 1000,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "a9eedf511e6a681bb705f4424fa83211b7fb29e4f919b3bdff2fa3b47fb1d6ea",
+      "hash": "2d2a7472b31da7c18d45df0d7f151f9f98ef24390fb367cb3e8fc06e8c3b0cda"
+    },
+    {
+      "index": 26,
+      "timestamp": "2026-02-18T03:18:42.508552",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218084842",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 5,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "2d2a7472b31da7c18d45df0d7f151f9f98ef24390fb367cb3e8fc06e8c3b0cda",
+      "hash": "9b1d87336df086651802ec7b4b86a4128a28587f99308ea9cf3dbd1bf2f467b6"
+    },
+    {
+      "index": 27,
+      "timestamp": "2026-02-18T08:57:02.059960",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218142702",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "9b1d87336df086651802ec7b4b86a4128a28587f99308ea9cf3dbd1bf2f467b6",
+      "hash": "61ab6d747b32fc6f1ebedbeb2d0fad665ff9f129a2b21e3fc3daa666f87deffa"
+    },
+    {
+      "index": 28,
+      "timestamp": "2026-02-18T08:57:02.072882",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218142702",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "61ab6d747b32fc6f1ebedbeb2d0fad665ff9f129a2b21e3fc3daa666f87deffa",
+      "hash": "03cb31fcb49e884f505132cecdfbd4d705adf0317fb23a932eef2364612f046e"
+    },
+    {
+      "index": 29,
+      "timestamp": "2026-02-18T09:12:25.402078",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218144225",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "03cb31fcb49e884f505132cecdfbd4d705adf0317fb23a932eef2364612f046e",
+      "hash": "4e26e2918e9b3eb9e672a0f97e72fd7e067802008f5f925578261481ccadcf4f"
+    },
+    {
+      "index": 30,
+      "timestamp": "2026-02-18T09:12:25.425091",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218144225",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "4e26e2918e9b3eb9e672a0f97e72fd7e067802008f5f925578261481ccadcf4f",
+      "hash": "dcbfd40931cd095611ceef96567723a6222cf315ffd5b0630992c097285bcbf9"
+    },
+    {
+      "index": 31,
+      "timestamp": "2026-02-18T09:35:42.262725",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218150542",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "dcbfd40931cd095611ceef96567723a6222cf315ffd5b0630992c097285bcbf9",
+      "hash": "d400f6db357eefa9ce9ef9ef9570c01c1f3276bf6760cdefb7ac2d095d71b1eb"
+    },
+    {
+      "index": 32,
+      "timestamp": "2026-02-18T09:35:42.271525",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218150542",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "d400f6db357eefa9ce9ef9ef9570c01c1f3276bf6760cdefb7ac2d095d71b1eb",
+      "hash": "357ac579dadd68c48bc2e744cd5a532f43cc24b00e70c412bd40589d4530cf00"
+    }
+  ],
+  "previous_hash": "357ac579dadd68c48bc2e744cd5a532f43cc24b00e70c412bd40589d4530cf00",
+  "last_updated": "2026-02-18T09:35:42.274986",
+  "chain_length": 32,
+  "version": "2.0"
+}

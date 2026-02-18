@@ -1,0 +1,132 @@
+{
+  "chain": [
+    {
+      "index": 1,
+      "timestamp": "2026-02-17T20:48:23.690512",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218021823",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "073f81deca12d38fd1c0e4ef53ff22fd9e77e836b1b110b8af098fd9505ec9e9"
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-02-17T20:48:23.694483",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218021823",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "073f81deca12d38fd1c0e4ef53ff22fd9e77e836b1b110b8af098fd9505ec9e9",
+      "hash": "933eb8aa11fddc3bfd9b00cf6ccb2ded75f0bb41ce62e7b03462818b6fa28e1e"
+    },
+    {
+      "index": 3,
+      "timestamp": "2026-02-17T20:54:53.279632",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218022453",
+      "details": {
+        "transaction_count": 15,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "933eb8aa11fddc3bfd9b00cf6ccb2ded75f0bb41ce62e7b03462818b6fa28e1e",
+      "hash": "41d5c13e0c18a3a407d52a3fcce42039b0b4e6f6407e7d731df1afef570798d2"
+    },
+    {
+      "index": 4,
+      "timestamp": "2026-02-17T20:54:53.285109",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218022453",
+      "details": {
+        "risk_score": 1.0,
+        "patterns_detected": 4,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "41d5c13e0c18a3a407d52a3fcce42039b0b4e6f6407e7d731df1afef570798d2",
+      "hash": "56ffa26167e41bb3dc7db64369f4dfdd735fa563514f9e3d9e29c53e82d14bea"
+    },
+    {
+      "index": 5,
+      "timestamp": "2026-02-17T21:05:20.850902",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218023520",
+      "details": {
+        "transaction_count": 100,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "56ffa26167e41bb3dc7db64369f4dfdd735fa563514f9e3d9e29c53e82d14bea",
+      "hash": "fc58e1fb396841f17be14ea33d1073baf53ba0db42df64433c1ac15ee089b4cb"
+    },
+    {
+      "index": 6,
+      "timestamp": "2026-02-17T21:05:20.863413",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218023520",
+      "details": {
+        "risk_score": 0.9,
+        "patterns_detected": 3,
+        "detection_types": [
+          "structuring",
+          "smurfing",
+          "layering"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "fc58e1fb396841f17be14ea33d1073baf53ba0db42df64433c1ac15ee089b4cb",
+      "hash": "f68c67f6afc64daf4d3b89e46644a3d4777052794af2027c611bf5b149d149bb"
+    },
+    {
+      "index": 7,
+      "timestamp": "2026-02-17T21:49:42.790418",
+      "action": "CASE_CREATED",
+      "user": "demo_user",
+      "case_id": "SAR-20260218031942",
+      "details": {
+        "transaction_count": 1000,
+        "customer_id": "CUST-789012",
+        "initial_risk": "CRITICAL"
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "f68c67f6afc64daf4d3b89e46644a3d4777052794af2027c611bf5b149d149bb",
+      "hash": "e232461630a837cfb67d878c2e56e010bd92eabf3f1c93fa4f9d4594abf60f1e"
+    }
+  ],
+  "previous_hash": "e232461630a837cfb67d878c2e56e010bd92eabf3f1c93fa4f9d4594abf60f1e",
+  "last_updated": "2026-02-17T21:49:42.794484",
+  "chain_length": 7,
+  "version": "2.0"
+}

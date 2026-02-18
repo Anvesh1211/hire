@@ -9,7 +9,7 @@ from .ui import (
     column_divider,
     section_header,
     risk_gauge,
-    footer
+    # footer
 )
 
 __all__ = [

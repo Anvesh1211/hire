@@ -1,0 +1,92 @@
+{
+  "chain": [
+    {
+      "index": 1,
+      "timestamp": "2026-02-17T22:01:36.724367",
+      "action": "CASE_CREATED",
+      "user": "test_user",
+      "case_id": "CASE-TEST-001",
+      "details": {
+        "transaction_count": 0,
+        "customer_id": "CUST-001",
+        "initial_risk": null
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "74307804e2bb13601d5eb121a52b45d8f6bf5530f93be7512f093e5a2ae80f38"
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-02-17T22:01:36.726149",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "test_user",
+      "case_id": "CASE-TEST-001",
+      "details": {
+        "risk_score": 0.5,
+        "patterns_detected": 2,
+        "detection_types": [
+          "amount_threshold"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "74307804e2bb13601d5eb121a52b45d8f6bf5530f93be7512f093e5a2ae80f38",
+      "hash": "bfcb8ecf15649adde95d08fb044d9afb6e79afb79155db7b59ddc2ee3b549518"
+    },
+    {
+      "index": 3,
+      "timestamp": "2026-02-17T22:01:36.744190",
+      "action": "SAR_GENERATED",
+      "user": "test_user",
+      "case_id": "CASE-TEST-001",
+      "details": {
+        "ai_model": "fallback",
+        "content_length": 573,
+        "timestamp": "2026-02-17T22:01:36.744144"
+      },
+      "previous_state": null,
+      "new_state": "bac8a78b3d9ad19692ee9aa0dedecc464fa724254f1724cbfee418c5de6244a7",
+      "previous_hash": "bfcb8ecf15649adde95d08fb044d9afb6e79afb79155db7b59ddc2ee3b549518",
+      "hash": "f8b03b8504142113417a0b5b8d0562792a4cb371154d51f1698f098dcb0f23b9"
+    },
+    {
+      "index": 4,
+      "timestamp": "2026-02-17T22:03:17.624522",
+      "action": "CASE_CREATED",
+      "user": "integration_test",
+      "case_id": "CASE-FULL-TEST-001",
+      "details": {
+        "transaction_count": 0,
+        "customer_id": "CUST-FULL-001",
+        "initial_risk": null
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "f8b03b8504142113417a0b5b8d0562792a4cb371154d51f1698f098dcb0f23b9",
+      "hash": "99569ab0dd0ab2d9b0f472cac6b4bcaa23aafb3d56fbd2b822f48fd9248e55c8"
+    },
+    {
+      "index": 5,
+      "timestamp": "2026-02-17T22:03:17.628610",
+      "action": "ANALYSIS_EXECUTED",
+      "user": "integration_test",
+      "case_id": "CASE-FULL-TEST-001",
+      "details": {
+        "risk_score": 0.5,
+        "patterns_detected": 2,
+        "detection_types": [
+          "amount_threshold"
+        ]
+      },
+      "previous_state": null,
+      "new_state": null,
+      "previous_hash": "99569ab0dd0ab2d9b0f472cac6b4bcaa23aafb3d56fbd2b822f48fd9248e55c8",
+      "hash": "536e50e1a8d20d634c4bb3a7b514c31ab275d0eff4416d985a1a40d7ce2ef7b5"
+    }
+  ],
+  "previous_hash": "536e50e1a8d20d634c4bb3a7b514c31ab275d0eff4416d985a1a40d7ce2ef7b5",
+  "last_updated": "2026-02-17T22:03:17.630495",
+  "chain_length": 5,
+  "version": "2.0"
+}

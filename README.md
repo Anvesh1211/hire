@@ -250,31 +250,29 @@ ProofSAR-AI/
 
 ---
 
+
 ## 👥 Team
 
-Built by a 10x Barclays Hackathon Winner 🏆
+TEAM VEXTRIA
+
+MEMBERS:
+Aditya Shetty
+Anvesh Chaurpagar
+Meenal Shendre
+Mustansir Dabhiya
+Prasad Dalvi
+---
 
 ---
 
-## 📄 License
-
-MIT License - Feel free to use for hackathons and learning
 
 ---
-
-## 🙏 Acknowledgments
-
-- Barclays for the hackathon opportunity
-- RBI and FIU-IND for regulatory frameworks
-- Open source community for amazing tools
-
----
-
 ## 📞 Support
 
 For questions or demo requests:
-- Email: proofsar.ai@demo.com
-- GitHub: [Your GitHub]
+- Email:anveshchaurpagar193@gmail.com
+- GitHub: [https://github.com/Anvesh1211/hire.git)]
+
 
 ---
 

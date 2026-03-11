@@ -159,41 +159,6 @@ ProofSAR-AI/
 └── README.md
 ```
 
----
-
-## 🎬 Demo Video Script
-
-### Scene 1: Dashboard (15s)
-- Show metrics dashboard
-- Highlight risk distribution
-- Point to trend analysis
-
-### Scene 2: Case Upload (20s)
-- Click "Use Demo Data"
-- Show transaction table
-- Run detection analysis
-- Explain detected patterns
-
-### Scene 3: AI Toggle (10s)
-- Toggle between Gemini and Local LLM
-- Show model switch in audit log
-
-### Scene 4: SAR Generation (30s)
-- Generate SAR narrative
-- Show "Why Guilty" reasoning
-- Highlight evidence linking
-- Edit narrative
-- Approve SAR
-
-### Scene 5: Audit & Alerts (15s)
-- Verify audit chain integrity
-- Show cryptographic hashes
-- Display sent alerts
-
-**Total: ~90 seconds**
-
----
-
 ## 🔐 Security Features
 
 1. **Cryptographic Audit Trail**
